@@ -15,7 +15,7 @@ st.set_page_config(page_title="KI-Einführung Simulation", layout="wide")
 logo = Image.open("logo.png")
 st.image(logo, use_container_width=True)
 
-st.title("🚀 DigitalNewX12 | Transformation-Sandbox")
+st.title("🚀 DigitalNewX | Transformation-Sandbox")
 
 # ---------------- ENV ----------------
 
