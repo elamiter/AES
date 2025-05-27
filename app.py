@@ -2,7 +2,6 @@ import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
 import os
-from dotenv import load_dotenv
 import openai
 from PIL import Image
 import unittest
@@ -16,22 +15,19 @@ st.set_page_config(page_title="KI-Einführung Simulation", layout="wide")
 logo = Image.open("logo.png")
 st.image(logo, use_container_width=True)
 
-st.title("🚀 Strategische KI-Einführung – Simulation")
+st.title("🚀 DigitalNewX | Transformation-Sandbox")
 
 # ---------------- ENV ----------------
-print("Lade .env ...")
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-print(f"EMAIL_PASSWORD geladen: {'JA' if EMAIL_PASSWORD else 'NEIN'}")
+
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+EMAIL_PASSWORD = st.secrets["EMAIL_PASSWORD"]
+EMAIL_ADDRESS = st.secrets["EMAIL_ADDRESS"]
 
 openai.api_key = OPENAI_API_KEY
-EMAIL_ADDRESS = "8da511002@smtp-brevo.com"
+
 
 # ---------------- MAIL ----------------
 def send_mail(subject, body, to_address):
-    print(f"Versende an: {to_address}")
-    print(f"Benutze Login: {EMAIL_ADDRESS}")
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = "arjang.farashzadeh@digitalnewx.com"
@@ -42,21 +38,19 @@ def send_mail(subject, body, to_address):
     with smtplib.SMTP("smtp-relay.brevo.com", 587) as smtp:
         smtp.starttls()
         smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        print("✅ SMTP-Login erfolgreich")
         smtp.send_message(msg)
-        print("✅ Mail erfolgreich gesendet")
+        
 
 # ---------------- ANMELDUNG ----------------
-st.header("1. Anmeldung")
+st.header("Anmeldung")
 with st.form("user_form"):
     first_name = st.text_input("Vorname")
     last_name = st.text_input("Nachname")
     email = st.text_input("E-Mail-Adresse")
-    role = st.text_input("Rolle im Unternehmen (z. B. CEO, CTO, HR, etc.)")
+    role = st.text_input("Rolle im Unternehmen (z.B. CEO, CTO, HR, etc.)")
     submitted = st.form_submit_button("Absenden")
 
 if submitted:
-    st.session_state.angemeldet = True
     st.success("Anmeldung gespeichert. Viel Erfolg!")
     try:
         mail_text = f"""
@@ -67,36 +61,14 @@ Nachname: {last_name}
 E-Mail: {email}
 Rolle: {role}
 """
-        send_mail("Neue KI-Simulationsanmeldung", mail_text, EMAIL_ADDRESS)
-        send_mail("Ihre Anmeldung zur KI-Simulation", f"Vielen Dank für Ihre Anmeldung, {first_name}!\n\nWir haben Ihre Daten erhalten.", "arjang.farashzadeh@digitalnewx.com")
+        send_mail("Neue KI-Simulationsanmeldung", mail_text, 'pascal.rudolf@digitalnewx.com')
     except Exception as e:
         st.warning(f"Anmeldung gespeichert, aber Mailversand fehlgeschlagen: {e}")
 
-# ---------------- TESTS ----------------
-class TestMailFunction(unittest.TestCase):
-    def test_mail_format(self):
-        subject = "Testbetreff"
-        body = "Dies ist\nein Test mit Zeilenumbruch."
-        to_address = "test@domain.de"
-
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = "arjang.farashzadeh@digitalnewx.com"
-        msg["To"] = to_address
-        html_part = MIMEText(body.replace("\n", "<br>"), "html")
-        msg.attach(html_part)
-
-        self.assertEqual(msg["Subject"], subject)
-        self.assertEqual(msg["From"], "arjang.farashzadeh@digitalnewx.com")
-        self.assertEqual(msg["To"], to_address)
-        self.assertIn("<br>", html_part.get_payload())
-
-if __name__ == "__main__":
-    unittest.main(argv=['first-arg-is-ignored'], exit=False)
 
 # ---------------- AUFGABE ----------------
 
-st.header("2. Aufgabe")
+st.header("Aufgabe")
 aufgabenstellung = """
 **Aufgabe des Kandidaten:**
 1. PoC-Aufsetzung: Definieren Sie, wie Sie den ersten KI-Anwendungsfall auswählen und technisch realisieren, sodass binnen weniger Wochen ein erster Prototyp entsteht.
@@ -107,20 +79,11 @@ Ziel: Zeigen Sie, wie kurzfristige Erfolgserlebnisse und eine langfristige KI-Ba
 """
 st.markdown(aufgabenstellung)
 
-st.header("3. Ihre Antwort")
+st.header("Ihre Antwort")
 antwort = st.text_area("Tragen Sie hier Ihre Antwort ein:", height=300)
 
-# Session Flag, ob die Anmeldung erfolgt ist
-if 'angemeldet' not in st.session_state:
-    st.session_state.angemeldet = False
-
-if st.button("Antwort einreichen & analysieren"):
-    if not st.session_state.angemeldet:
-        st.warning("Bitte melden Sie sich zuerst an und klicken Sie auf 'Absenden', bevor Sie fortfahren.")
-    elif not antwort:
-        st.info("Bitte geben Sie zuerst Ihre Maßnahmen ein.")
-    else:
-    with st.spinner("Analysiere Antwort mit GPT-4..."):
+if st.button("Antwort einreichen & analysieren") and antwort:
+    with st.spinner("Analysiere Antwort ..."):
         prompt_bewertung = f"""
 Du bist ein Evaluator für KI-Strategie-Simulationen in Unternehmen. Vergleiche die folgende Antwort mit dem Erwartungshorizont in drei Dimensionen:
 
@@ -128,11 +91,27 @@ Du bist ein Evaluator für KI-Strategie-Simulationen in Unternehmen. Vergleiche 
 {antwort}
 
 **Erwartungshorizont:**
-Dimension 1 – Werte: Nutzenargumentation, Umgang mit Unsicherheit
-Dimension 2 – Wissen: Reifegrad, Know-how
-Dimension 3 – Kultur: Haltung, Offenheit
+Dimension: Werte (Wirtschaftlichkeit & Umsetzung)
+Erwartung: Die Teilnehmenden erkennen, dass in dieser frühen Phase häufig keine klaren Business-Cases vorliegen und es Skepsis bei Budgetfreigaben gibt.
+Was eine gute Lösung zeigt:
+Ein methodisches Vorgehen, wie erste Argumente für Nutzen und ROI geliefert werden können (z.B. Quick-Win-Ansätze, erste grobe Wirtschaftlichkeitsbetrachtungen).
+Überlegungen dazu, wie Unsicherheit und Widerstand gegen erste KI-Investitionen reduziert werden können (z.B. Pilot-Budget, Kommunikationsplan zum Kosten-Nutzen-Verhältnis).
 
-Bewerte jede Dimension mit kurzer Begründung. Gib am Ende eine Gesamteinschätzung (kurz) für den strategischen Reifegrad.
+Dimension: Wissen (Reifegrad & Know-how)
+Erwartung: Die Teilnehmenden berücksichtigen, dass das Unternehmen geringes Verständnis für KI haben könnte und dass Daten (bzw. deren Qualität und Struktur) am Anfang oft unzureichend sind.
+Was eine gute Lösung zeigt:
+Erste Ideen, wie das Unternehmen trotz mangelnder Erfahrung einen PoC oder ein KI-Konzept anstoßen kann (z.B. externe Beratung, interne Taskforce, Weiterbildung).
+Ansätze, wie man den Data-Reifegrad Schritt für Schritt steigert (z.B. erste Bestandsaufnahme der vorhandenen Datenquellen).
+
+Dimension: Kultur (Haltung & Kultur)
+Erwartung: In der „Inspirieren“-Phase herrscht oft eine vorsichtige Grundhaltung gegenüber Neuerungen, es gibt keine etablierten KI-Befürworter und Skepsis kann hoch sein.
+Was eine gute Lösung zeigt:
+Maßnahmen, wie erste KI-Euphorie oder zumindest Offenheit geschaffen wird (z.B. gemeinsamer Kick-off, Stakeholder-Workshops).
+Überlegungen, wie man den Kulturwandel unterstützt (z.B. Vorbilder im Management identifizieren, die hinter dem KI-Thema stehen) und den typischen Ängsten begegnet.
+
+Bewerte (Überhauptnicht erfüllt, Teilweise erfüllt, Erweitert erfüllt, ganz Erfüllt) jede Dimension mit kurzer Begründung. Gib am Ende eine Gesamteinschätzung (kurz) für den strategischen Reifegrad.
+
+
 """
         response1 = openai.chat.completions.create(
             model="gpt-4-1106-preview",
@@ -143,7 +122,7 @@ Bewerte jede Dimension mit kurzer Begründung. Gib am Ende eine Gesamteinschätz
             temperature=0.7
         )
         beurteilung = response1.choices[0].message.content
-        st.subheader("🧠 GPT-Bewertung:")
+        st.subheader("🧠 Bewertung:")
         st.markdown(beurteilung)
 
         # Zweiter GPT-Call: Auswirkungen auf XANDU
@@ -152,7 +131,8 @@ Nutze folgende Beschreibung von Maßnahmen und Strategien:
 
 {antwort}
 
-Wende diese auf die Firma XANDU an. Erstelle eine kurze tabellarische Übersicht zu den erwarteten Auswirkungen innerhalb der ersten vier Wochen.
+Wende diese auf die Firma XANDU an. Erstelle eine kurze  Übersicht  zu den erwarteten simulierten Auswirkungen auf die drei 
+Bewertungsdimensionen (Werte, Wissen, Kultur) innerhalb der ersten vier Wochen. lasse in der Antwort "<br>" weg!
 
 **Eckdaten von XANDU:**
 - Jahresumsatz: 20 Mio €
@@ -165,6 +145,8 @@ Wende diese auf die Firma XANDU an. Erstelle eine kurze tabellarische Übersicht
 - Kernbereiche: GF, Produktion, Einkauf, Vertrieb, F&E, HR, Controlling, IT
 - Größte Herausforderung: Veraltete IT-Systeme, Systemwildwuchs, steigender Wettbewerbsdruck durch KI
 """
+        
+        st.markdown("**Ihre Maßnahmen und Strategien hätten auf die XANDU GmbH folgende Auswirkungen:**")
         response2 = openai.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=[
@@ -174,9 +156,10 @@ Wende diese auf die Firma XANDU an. Erstelle eine kurze tabellarische Übersicht
             temperature=0.7
         )
         auswirkungen = response2.choices[0].message.content
-        st.markdown("**Ihre Maßnahmen und Strategien hätten auf die XANDU GmbH folgende Auswirkungen:**")
-        st.subheader("🏭 Auswirkungen auf XANDU GmbH (erste 4 Wochen):")
+        st.header("🏭 Auswirkungen auf XANDU GmbH (erste 4 Wochen):")
         st.markdown(auswirkungen)
-st.subheader("🏭 Auswirkungen auf XANDU GmbH (erste 4 Wochen):")
-        st.markdown(auswirkungen)
+else:
+    st.info("Bitte geben Sie zuerst Ihre Maßnahmen ein.")
 
+st.header('Lassen Sie uns über Ihre Simulation sprechen!')
+st.subheader('pascal.rudolf@digitalnewx.com')
