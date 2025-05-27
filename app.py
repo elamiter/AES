@@ -143,7 +143,7 @@ Nutze folgende Beschreibung von Maßnahmen und Strategien:
 {antwort}
 
 Wende diese auf die Firma XANDU an. Erstelle eine kurze  Übersicht  zu den erwarteten simulierten Auswirkungen auf die drei 
-Bewertungsdimensionen (Werte (Wirtschaftlichkeit & Umsetzung), Wissen (Reifegrad & Know-how), Kultur (Haltung & Kultur)) innerhalb der ersten vier Wochen. lasse im Antworttext (response ) "<br>" weg!
+Bewertungsdimensionen (Werte (Wirtschaftlichkeit & Umsetzung), Wissen (Reifegrad & Know-how), Kultur (Haltung & Kultur)) innerhalb der ersten vier Wochen. lasse im Antworttext (response ) **<br>** weg!
 
 **Eckdaten von XANDU:**
 - Jahresumsatz: 20 Mio €
