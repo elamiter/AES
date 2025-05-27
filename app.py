@@ -17,6 +17,11 @@ st.image(logo, use_container_width=True)
 
 st.title("🚀 DigitalNewX | Transformation-Sandbox")
 
+# ---------------- SESSION INIT ----------------
+if "angemeldet" not in st.session_state:
+    st.session_state.angemeldet = False
+
+
 # ---------------- ENV ----------------
 
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
@@ -51,6 +56,7 @@ with st.form("user_form"):
     submitted = st.form_submit_button("Absenden")
 
 if submitted:
+    st.session_state.angemeldet = True
     st.success("Anmeldung gespeichert. Viel Erfolg!")
     try:
         mail_text = f"""
@@ -82,9 +88,15 @@ st.markdown(aufgabenstellung)
 st.header("Ihre Antwort")
 antwort = st.text_area("Tragen Sie hier Ihre Antwort ein:", height=300)
 
+
 if st.button("Antwort einreichen & analysieren") and antwort:
-    with st.spinner("Analysiere Antwort ..."):
-        prompt_bewertung = f"""
+    if not st.session_state.angemeldet:
+        st.warning("Bitte melden Sie sich zuerst an und klicken Sie auf 'Absenden'.")
+    elif not antwort:
+        st.info("Bitte geben Sie Ihre Maßnahmen ein, bevor Sie fortfahren.")
+    else:
+        with st.spinner("Analysiere Antwort ..."):
+            prompt_bewertung = f"""
 Du bist ein Evaluator für KI-Strategie-Simulationen in Unternehmen. Vergleiche die folgende Antwort mit dem Erwartungshorizont in drei Dimensionen:
 
 **Antwort des Kandidaten:**
